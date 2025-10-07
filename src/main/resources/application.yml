@@ -5,4 +5,25 @@ server:
 spring:
   application:
     name: Sheep-music
+  
+  # 数据库配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sheepmusic?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 1234 # 请修改为你的数据库密码
+  
+  # JPA配置
+  jpa:
+    hibernate:
+      ddl-auto: update  # 自动创建/更新表结构
+    show-sql: true      # 显示SQL语句
+    properties:
+      hibernate:
+        format_sql: true  # 格式化SQL
+
+# JWT配置
+jwt:
+  secret: sheep-music-secret-key-2024  # JWT密钥，请修改为复杂的字符串
+  expiration: 604800000  # 7天有效期（毫秒）
 
