@@ -1,0 +1,608 @@
+{
+	"info": {
+		"name": "Sheep Music API",
+		"description": "在线音乐网站 API 测试集合",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. 用户认证",
+			"item": [
+				{
+					"name": "1.1 管理员登录",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 自动保存 token 到环境变量",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.environment.set(\"token\", jsonData.data.token);",
+									"        console.log(\"Token 已保存:\", jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"admin\",\n  \"password\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "login"]
+						}
+					}
+				},
+				{
+					"name": "1.2 用户注册",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"123456\",\n  \"nickname\": \"测试用户\",\n  \"email\": \"test@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["auth", "register"]
+						}
+					}
+				},
+				{
+					"name": "1.3 获取当前用户信息",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user/info",
+							"host": ["{{baseUrl}}"],
+							"path": ["user", "info"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "2. 歌手管理（管理员）",
+			"item": [
+				{
+					"name": "2.1 创建歌手",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 自动保存 artistId",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.id) {",
+									"        pm.environment.set(\"artistId\", jsonData.data.id);",
+									"        console.log(\"ArtistId 已保存:\", jsonData.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"周杰伦\",\n  \"avatar\": \"https://pic.imgdb.cn/item/67e5a3b2d0e0a243d4e84c7b.jpg\",\n  \"description\": \"华语流行天王\",\n  \"region\": \"中国台湾\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/artist",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "artist"]
+						}
+					}
+				},
+				{
+					"name": "2.2 获取歌手列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/artist/list?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "artist", "list"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "2.3 获取所有歌手（不分页）",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/artist/all",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "artist", "all"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "3. 文件上传",
+			"item": [
+				{
+					"name": "3.1 上传音乐文件",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 自动保存音乐文件 URL",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.url) {",
+									"        pm.environment.set(\"musicUrl\", jsonData.data.url);",
+									"        console.log(\"音乐 URL 已保存:\", jsonData.data.url);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/upload/music",
+							"host": ["{{baseUrl}}"],
+							"path": ["upload", "music"]
+						}
+					}
+				},
+				{
+					"name": "3.2 上传封面图片",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 自动保存封面 URL",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.url) {",
+									"        pm.environment.set(\"coverUrl\", jsonData.data.url);",
+									"        console.log(\"封面 URL 已保存:\", jsonData.data.url);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/upload/cover",
+							"host": ["{{baseUrl}}"],
+							"path": ["upload", "cover"]
+						}
+					}
+				},
+				{
+					"name": "3.3 上传头像",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/upload/avatar",
+							"host": ["{{baseUrl}}"],
+							"path": ["upload", "avatar"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "4. 歌曲管理（管理员）",
+			"item": [
+				{
+					"name": "4.1 创建歌曲",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 自动保存 songId",
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.id) {",
+									"        pm.environment.set(\"songId\", jsonData.data.id);",
+									"        console.log(\"SongId 已保存:\", jsonData.data.id);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"爱你没差\",\n  \"artistId\": {{artistId}},\n  \"artistName\": \"周杰伦\",\n  \"duration\": 245,\n  \"cover\": \"{{coverUrl}}\",\n  \"url\": \"{{musicUrl}}\",\n  \"lyric\": \"[00:00.00]爱你没差\\n[00:05.00]周杰伦\",\n  \"status\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/song",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "song"]
+						}
+					}
+				},
+				{
+					"name": "4.2 获取歌曲列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/song/list?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "song", "list"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "4.3 获取歌曲详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/song/{{songId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "song", "{{songId}}"]
+						}
+					}
+				},
+				{
+					"name": "4.4 更新歌曲",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"爱你没差（修改版）\",\n  \"artistId\": {{artistId}},\n  \"artistName\": \"周杰伦\",\n  \"duration\": 245,\n  \"cover\": \"{{coverUrl}}\",\n  \"url\": \"{{musicUrl}}\",\n  \"status\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/admin/song/{{songId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "song", "{{songId}}"]
+						}
+					}
+				},
+				{
+					"name": "4.5 删除歌曲",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/admin/song/{{songId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["admin", "song", "{{songId}}"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "5. 音乐浏览（用户端）",
+			"item": [
+				{
+					"name": "5.1 获取最新歌曲",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/new?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "new"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "5.2 获取热门歌曲",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/hot?page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "hot"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "5.3 搜索歌曲",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/search?keyword=爱你&page=0&size=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "search"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": "爱你"
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "10"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "5.4 获取歌曲详情",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/song/{{songId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "song", "{{songId}}"]
+						}
+					}
+				},
+				{
+					"name": "5.5 播放歌曲（增加播放次数）",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/play/{{songId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "play", "{{songId}}"]
+						}
+					}
+				},
+				{
+					"name": "5.6 获取歌手列表",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/artists?page=0&size=20",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "artists"],
+							"query": [
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "size",
+									"value": "20"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "5.7 根据歌手获取歌曲",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/music/artist/{{artistId}}/songs",
+							"host": ["{{baseUrl}}"],
+							"path": ["music", "artist", "{{artistId}}", "songs"]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+
