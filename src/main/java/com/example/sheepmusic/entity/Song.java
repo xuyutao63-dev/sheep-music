@@ -1,11 +1,14 @@
 package com.example.sheepmusic.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 歌曲实体类
@@ -13,6 +16,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "tb_song")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Song {
     
     @Id
@@ -26,16 +30,15 @@ public class Song {
     private String title;
     
     /**
-     * 歌手ID
+     * 歌手列表（多对多关系）
      */
-    @Column(nullable = false)
-    private Long artistId;
-    
-    /**
-     * 歌手名称（冗余字段，方便查询）
-     */
-    @Column(length = 100)
-    private String artistName;
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "song_artist",
+        joinColumns = @JoinColumn(name = "song_id"),
+        inverseJoinColumns = @JoinColumn(name = "artist_id")
+    )
+    private List<Artist> artists = new ArrayList<>();
     
     /**
      * 专辑ID（可为空）
@@ -47,6 +50,18 @@ public class Song {
      */
     @Column(length = 100)
     private String albumName;
+    
+    /**
+     * 歌曲类型/风格
+     */
+    @Column(length = 50)
+    private String genre;
+    
+    /**
+     * 歌曲语言
+     */
+    @Column(length = 20)
+    private String language;
     
     /**
      * 歌曲时长（秒）

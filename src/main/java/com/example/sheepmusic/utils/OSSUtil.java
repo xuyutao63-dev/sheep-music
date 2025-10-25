@@ -2,11 +2,13 @@ package com.example.sheepmusic.utils;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
@@ -60,21 +62,36 @@ public class OSSUtil {
         // 4. 创建OSSClient实例
         OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
         
+        InputStream inputStream = null;
         try {
-            // 5. 获取文件输入流
-            InputStream inputStream = file.getInputStream();
+            // 5. 将文件读取为字节数组（解决输入流无法重置的问题）
+            byte[] fileBytes = file.getBytes();
+            inputStream = new ByteArrayInputStream(fileBytes);
             
-            // 6. 创建上传请求
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream);
+            // 6. 设置对象元数据
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(fileBytes.length);
+            metadata.setContentType(file.getContentType());
             
-            // 7. 上传文件
+            // 7. 创建上传请求
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata);
+            
+            // 8. 上传文件
             ossClient.putObject(putObjectRequest);
             
-            // 8. 返回文件访问URL
+            // 9. 返回文件访问URL
             return urlPrefix + fileName;
             
         } finally {
-            // 9. 关闭OSSClient
+            // 10. 关闭输入流
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            // 11. 关闭OSSClient
             if (ossClient != null) {
                 ossClient.shutdown();
             }

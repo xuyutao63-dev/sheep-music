@@ -21,9 +21,25 @@ spring:
     properties:
       hibernate:
         format_sql: true  # 格式化SQL
+  
+  # 文件上传配置
+  servlet:
+    multipart:
+      enabled: true  # 启用文件上传
+      max-file-size: 30MB  # 单个文件最大大小
+      max-request-size: 30MB  # 整个请求最大大小
 
 # JWT配置
 jwt:
   secret: sheep-music-secret-key-2024  # JWT密钥，请修改为复杂的字符串
   expiration: 604800000  # 7天有效期（毫秒）
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: oss-cn-hangzhou.aliyuncs.com  # OSS地域节点（请根据实际情况修改）
+    accessKeyId: ${ALIYUN_OSS_ACCESS_KEY_ID}  # 你的AccessKey ID
+    accessKeySecret: ${ALIYUN_OSS_ACCESS_KEY_SECRET}  # 你的AccessKey Secret
+    bucketName: sheepmusic  # 你的Bucket名称
+    urlPrefix: https://sheepmusic.oss-cn-hangzhou.aliyuncs.com/  # OSS访问域名
 

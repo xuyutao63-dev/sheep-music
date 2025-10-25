@@ -3,7 +3,8 @@ package com.example.sheepmusic.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 歌曲请求DTO
@@ -18,15 +19,10 @@ public class SongRequest {
     private String title;
     
     /**
-     * 歌手ID
+     * 歌手ID列表（支持多歌手）
      */
-    @NotNull(message = "歌手ID不能为空")
-    private Long artistId;
-    
-    /**
-     * 歌手名称
-     */
-    private String artistName;
+    @NotEmpty(message = "至少需要选择一位歌手")
+    private List<Long> artistIds;
     
     /**
      * 专辑ID（可选）

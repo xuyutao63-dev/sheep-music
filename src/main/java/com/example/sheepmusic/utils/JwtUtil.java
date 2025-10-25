@@ -25,10 +25,11 @@ public class JwtUtil {
     /**
      * 生成Token
      */
-    public String generateToken(String username, Long userId) {
+    public String generateToken(String username, Long userId, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
         claims.put("userId", userId);
+        claims.put("role", role);
         return createToken(claims);
     }
     
@@ -64,7 +65,15 @@ public class JwtUtil {
     }
     
     /**
-     * 从Token中获取Claims
+     * 从Token中获取角色
+     */
+    public String getRoleFromToken(String token) {
+        Claims claims = getClaimsFromToken(token);
+        return claims != null ? claims.get("role", String.class) : null;
+    }
+    
+    /**
+     * 从Token中获取Claims，并且进行验证是否被篡改
      */
     private Claims getClaimsFromToken(String token) {
         try {

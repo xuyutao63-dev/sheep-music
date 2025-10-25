@@ -6,6 +6,7 @@ import com.example.sheepmusic.entity.Song;
 import com.example.sheepmusic.service.SongService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -121,6 +122,32 @@ public class SongController {
         } catch (Exception e) {
             return Result.error(e.getMessage());
         }
+    }
+    
+    /**
+     * 批量更新歌曲类型和语言
+     */
+    @ApiOperation("批量更新歌曲类型和语言")
+    @PutMapping("/batch-update-genre-language")
+    public Result<Void> batchUpdateGenreAndLanguage(@RequestBody List<SongGenreLanguageUpdate> updates) {
+        try {
+            songService.batchUpdateGenreAndLanguage(updates);
+            Result<Void> result = Result.success();
+            result.setMessage("批量更新成功");
+            return result;
+        } catch (Exception e) {
+            return Result.error(e.getMessage());
+        }
+    }
+    
+    /**
+     * 歌曲类型和语言更新DTO
+     */
+    @Data
+    public static class SongGenreLanguageUpdate {
+        private Long id;
+        private String genre;
+        private String language;
     }
 }
 

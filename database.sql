@@ -24,6 +24,19 @@ CREATE TABLE IF NOT EXISTS tb_user (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 */
 
+-- 搜索历史表（JPA 会自动创建，这里提供参考）
+/*
+CREATE TABLE IF NOT EXISTS search_history (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    user_id BIGINT NOT NULL COMMENT '用户ID',
+    keyword VARCHAR(100) NOT NULL COMMENT '搜索关键词',
+    search_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '搜索时间',
+    INDEX idx_user_id (user_id),
+    INDEX idx_search_time (search_time),
+    INDEX idx_user_keyword (user_id, keyword)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='搜索历史表';
+*/
+
 -- 说明：
 -- 由于使用了JPA的自动建表功能（ddl-auto: update），
 -- 启动项目时会自动创建表结构，无需手动执行建表SQL。

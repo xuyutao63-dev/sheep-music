@@ -21,7 +21,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+
+    /*密码加密器 Bean*/
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -32,7 +33,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
             // 禁用CSRF（因为使用JWT）
             .csrf().disable()
+            // 允许跨域
+            .cors()
             
+            .and()
             // 配置Session管理为无状态
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -40,12 +44,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             // 配置请求权限
             .authorizeRequests()
+            // 放行 OPTIONS 请求（CORS 预检）
+            .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
             // 放行登录注册接口
             .antMatchers("/auth/**").permitAll()
             // 放行Swagger文档
             .antMatchers("/doc.html", "/swagger-resources/**", "/webjars/**", "/v2/api-docs").permitAll()
             // 放行静态资源
             .antMatchers("/static/**").permitAll()
+            // 放行热门搜索接口（公开接口）
+            .antMatchers(org.springframework.http.HttpMethod.GET, "/api/user/search-history/hot").permitAll()
+            // 管理员接口（只有管理员可访问）
+            .antMatchers("/admin/**").hasRole("ADMIN")
             // 其他请求需要认证
             .anyRequest().authenticated()
             

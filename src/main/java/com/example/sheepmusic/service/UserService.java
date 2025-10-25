@@ -2,6 +2,8 @@ package com.example.sheepmusic.service;
 
 import com.example.sheepmusic.dto.LoginRequest;
 import com.example.sheepmusic.dto.RegisterRequest;
+import com.example.sheepmusic.dto.UpdatePasswordRequest;
+import com.example.sheepmusic.dto.UpdateUserRequest;
 import com.example.sheepmusic.entity.User;
 import com.example.sheepmusic.repository.UserRepository;
 import com.example.sheepmusic.utils.JwtUtil;
@@ -51,6 +53,13 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setStatus(1);  // 正常状态
         
+        // 如果用户名是 admin，自动设为管理员
+        if ("admin".equals(request.getUsername())) {
+            user.setRole("admin");
+        } else {
+            user.setRole("user");
+        }
+        
         return userRepository.save(user);
     }
     
@@ -72,8 +81,8 @@ public class UserService {
             throw new RuntimeException("账号已被禁用");
         }
         
-        // 生成Token
-        String token = jwtUtil.generateToken(user.getUsername(), user.getId());
+        // 生成Token（包含角色）
+        String token = jwtUtil.generateToken(user.getUsername(), user.getId(), user.getRole());
         
         // 返回用户信息和Token
         Map<String, Object> result = new HashMap<>();
@@ -112,7 +121,67 @@ public class UserService {
         info.put("phone", user.getPhone());
         info.put("gender", user.getGender());
         info.put("signature", user.getSignature());
+        info.put("role", user.getRole());  // 添加角色
+        info.put("createdAt", user.getCreateTime());  // 使用 createTime 字段
         return info;
+    }
+    
+    /**
+     * 更新用户信息
+     */
+    public User updateUser(Long userId, UpdateUserRequest request) {
+        // 查找用户
+        User user = getUserById(userId);
+        
+        // 检查邮箱是否已被其他用户使用
+        if (request.getEmail() != null && !request.getEmail().isEmpty()) {
+            User existUser = userRepository.findByEmail(request.getEmail()).orElse(null);
+            if (existUser != null && !existUser.getId().equals(userId)) {
+                throw new RuntimeException("该邮箱已被其他用户使用");
+            }
+        }
+        
+        // 更新用户信息
+        if (request.getNickname() != null && !request.getNickname().isEmpty()) {
+            user.setNickname(request.getNickname());
+        }
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail().isEmpty() ? null : request.getEmail());
+        }
+        if (request.getAvatar() != null) {
+            user.setAvatar(request.getAvatar().isEmpty() ? null : request.getAvatar());
+        }
+        
+        return userRepository.save(user);
+    }
+    
+    /**
+     * 修改密码
+     */
+    public void updatePassword(Long userId, UpdatePasswordRequest request) {
+        // 查找用户
+        User user = getUserById(userId);
+        
+        // 验证旧密码
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new RuntimeException("旧密码错误");
+        }
+        
+        // 检查新密码不能与旧密码相同
+        if (request.getOldPassword().equals(request.getNewPassword())) {
+            throw new RuntimeException("新密码不能与旧密码相同");
+        }
+        
+        // 更新密码
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
+    
+    /**
+     * 获取用户信息Map（公开方法，用于Controller）
+     */
+    public Map<String, Object> getUserInfoMap(User user) {
+        return getUserInfo(user);
     }
 }
 

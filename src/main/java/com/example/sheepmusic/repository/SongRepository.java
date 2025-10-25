@@ -17,9 +17,10 @@ import java.util.List;
 public interface SongRepository extends JpaRepository<Song, Long> {
     
     /**
-     * 根据歌手ID查找歌曲
+     * 根据歌手ID查找歌曲（多对多关系）
      */
-    List<Song> findByArtistId(Long artistId);
+    @Query("SELECT DISTINCT s FROM Song s JOIN s.artists a WHERE a.id = :artistId")
+    List<Song> findByArtistId(@Param("artistId") Long artistId);
     
     /**
      * 根据专辑ID查找歌曲
@@ -32,9 +33,9 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     Page<Song> findByStatus(Integer status, Pageable pageable);
     
     /**
-     * 搜索歌曲（根据歌曲名或歌手名）
+     * 搜索歌曲（根据歌曲名或歌手名）- 支持多歌手
      */
-    @Query("SELECT s FROM Song s WHERE s.title LIKE %:keyword% OR s.artistName LIKE %:keyword%")
+    @Query("SELECT DISTINCT s FROM Song s LEFT JOIN s.artists a WHERE s.title LIKE %:keyword% OR a.name LIKE %:keyword%")
     Page<Song> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
     
     /**

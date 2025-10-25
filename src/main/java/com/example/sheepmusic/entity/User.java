@@ -67,6 +67,12 @@ public class User {
     private String signature;
     
     /**
+     * 用户角色：user-普通用户，admin-管理员
+     */
+    @Column(length = 20, nullable = false)
+    private String role = "user";
+    
+    /**
      * 账号状态：0-禁用，1-正常
      */
     @Column(nullable = false)
